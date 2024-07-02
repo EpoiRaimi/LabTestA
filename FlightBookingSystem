@@ -1,0 +1,85 @@
+import java.io.*;
+import java.util.*;
+
+public class FlightBookingSystem {
+    private static Booking[] bookings = new Booking[10]; // Initial capacity, can be adjusted as needed
+    private static int size = 0; // Current number of bookings in the array
+
+    public static void main(String[] args) {
+        try {
+            readBookingsFromFile("flightBookings.txt");
+            processBookings();
+        } catch (IOException e) {
+            System.err.println("Error reading from file: " + e.getMessage());
+        }
+    }
+
+    private static void readBookingsFromFile(String fileName) throws IOException {
+        try (Scanner scanner = new Scanner(new File(fileName))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                String[] parts = line.split(",");
+
+                if (parts.length != 4) {
+                    System.err.println("Invalid input format: " + line);
+                    continue;
+                }
+
+                String customerName = parts[0].trim();
+                String destination = parts[1].trim();
+                double pricePerTicket;
+                int numTickets;
+
+                try {
+                    pricePerTicket = Double.parseDouble(parts[2].trim());
+                    numTickets = Integer.parseInt(parts[3].trim());
+                } catch (NumberFormatException e) {
+                    System.err.println("Error parsing number: " + e.getMessage());
+                    continue;
+                }
+
+                if (size >= bookings.length) {
+                    // Resize the array if it's full
+                    bookings = Arrays.copyOf(bookings, bookings.length * 2);
+                }
+
+                bookings[size++] = new Booking(customerName, destination, pricePerTicket, numTickets);
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    private static void processBookings() {
+        System.out.println("Bookings:");
+        for (int i = 0; i < size; i++) {
+            System.out.println(bookings[i]);
+        }
+    }
+
+    // Booking class representing each booking
+    private static class Booking {
+        private String customerName;
+        private String destination;
+        private double pricePerTicket;
+        private int numTickets;
+
+        public Booking(String customerName, String destination, double pricePerTicket, int numTickets) {
+            this.customerName = customerName;
+            this.destination = destination;
+            this.pricePerTicket = pricePerTicket;
+            this.numTickets = numTickets;
+        }
+
+        @Override
+        public String toString() {
+            return "Booking{" +
+            "customerName='" + customerName + '\'' +
+            ", destination='" + destination + '\'' +
+            ", pricePerTicket=" + pricePerTicket +
+            ", numTickets=" + numTickets +
+            '}';
+        }
+    }
+}
